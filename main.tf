@@ -43,9 +43,12 @@ resource "aws_route_table_association" "rta2" {
 }
 
 resource "aws_instance" "web" {
-  ami = "ami-0c7217cdde317cfec"
-  instance_type = "t2.micro"
+  ami = var.ami
+  instance_type = var.instanceType
   subnet_id = aws_subnet.sub1.id
+  user_data = "${file("userdata.sh")}"
+  security_groups = [ aws_security_group.sg.id ]
+  associate_public_ip_address = true
 }
 
 resource "aws_security_group" "sg" {
@@ -62,6 +65,12 @@ resource "aws_security_group" "sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
 }
+ingress {
+	from_port = 22
+	to_port = 22
+	protocol = "tcp"
+	cidr_blocks = ["0.0.0.0/0"]
+  }
   egress {
 	from_port = 0
 	to_port = 0
@@ -69,3 +78,4 @@ resource "aws_security_group" "sg" {
 	cidr_blocks = ["0.0.0.0/0"]
 }
 }
+
